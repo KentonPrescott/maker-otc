@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+set -e
+
+test -z $OTC && exit 1;
+
+export SOLC_FLAGS=${SOLC_FLAGS:-"--optimize"}
+export ETH_FROM=$(seth coinbase)
+export ETH_GAS=4000000
+
+dapp build
+
+MOM=$(dapp create DSRoles)
+
+export ETH_GAS=500000
+
+seth send $OTC "setAuthority(address)" $MOM
+seth send $MOM "setRootUser(address,bool)" $ETH_FROM true
+
+sig=$(seth calldata "offer(uint256,address,uint256,address)")
+seth send $MOM "setRoleCapability(uint8,address,bytes4,bool)" 1 $OTC $sig true
+
+sig=$(seth calldata "buy(uint256,uint256)")
+seth send $MOM "setRoleCapability(uint8,address,bytes4,bool)" 1 $OTC $sig true
