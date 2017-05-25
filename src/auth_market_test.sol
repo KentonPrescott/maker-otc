@@ -18,6 +18,10 @@ contract AuthMarketTester {
     function doBuy(uint id, uint buy_how_much) returns (bool _success) {
         return market.buy(id, buy_how_much);
     }
+    function doOffer( uint sell_how_much, ERC20 sell_which_token
+                  , uint buy_how_much,  ERC20 buy_which_token ) returns (uint _id) {
+        return market.offer(sell_how_much, sell_which_token, buy_how_much, buy_which_token);
+    }
     function doCancel(uint id) returns (bool _success) {
         return market.cancel(id);
     }
@@ -65,13 +69,16 @@ contract AuthMarketTest is DSTest {
         otc.setAuthority(mom);
         mom.setRootUser(this, true);
         mom.setRoleCapability(1, otc, bytes4(sha3("buy(uint256,uint256)")), true);
+        mom.setRoleCapability(1, otc, bytes4(sha3("offer(uint256,address,uint256,address)")), true);
         mom.setUserRole(user2, 1, true);
 
         dai = new DSTokenBase(10 ** 9);
         mkr = new DSTokenBase(10 ** 6);
 
         dai.transfer(user2, 100);
+        mkr.transfer(user2, 100);
         user2.doApprove(otc, 100, dai);
+        user2.doApprove(otc, 100, mkr);
         mkr.approve(otc, 30);
     }
     function testIsClosedBeforeExpiry() {
@@ -105,7 +112,7 @@ contract AuthMarketTest is DSTest {
         assert(!otc.isActive(id));
     }
     function testBuyBeforeExpiry() {
-        var id = otc.offer( 30, mkr, 100, dai );
+        var id = user2.doOffer( 30, mkr, 100, dai );
         assert(user2.doBuy(id, 30));
     }
     function testFailBuyAfterExpiry() {
