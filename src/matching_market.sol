@@ -22,7 +22,7 @@ contract MatchingMarket is MatchingEvents, ExpiringMarket, DSNote {
     struct sortInfo {
         uint next;  //points to id of next higher offer
         uint prev;  //points to id of previous lower offer
-	    uint delb;  //the blocknumber where this entry was marked for delete
+        uint delb;  //the blocknumber where this entry was marked for delete
     }
     mapping(uint => sortInfo) public _rank;                     //doubly linked lists of sorted offer ids
     mapping(address => mapping(address => uint)) public _best;  //id of the highest offer for a token pair
@@ -174,19 +174,20 @@ contract MatchingMarket is MatchingEvents, ExpiringMarket, DSNote {
 
         require(_hide(id));             //remove offer from unsorted offers list
         _sort(id, pos);                 //put offer into the sorted offers list
-	LogInsert(msg.sender, id);
+        LogInsert(msg.sender, id);
         return true;
     }
-    
+
     //deletes _rank [id]
     //  Function should be called by keepers.
-	function del_rank(uint id)
-    returns(bool){
+    function del_rank(uint id)
+    returns(bool)
+    {
         require(!isActive(id) && _rank[id].delb != 0 && _rank[id].delb < block.number - 10);
         delete _rank[id];
-        LogDelete(msg.sender, id); 
+        LogDelete(msg.sender, id);
         return true;
-    }    
+    }
 
     //returns true if token is succesfully added to whitelist
     //  Function is used to add a token pair to the whitelist
@@ -458,17 +459,17 @@ contract MatchingMarket is MatchingEvents, ExpiringMarket, DSNote {
     {
         require( id > 0 );
 
-        if (pos == 0 
-            || ( isActive(pos) 
-                && (!_isLtOrEq(id, pos) || (_rank[pos].prev != 0 
+        if (pos == 0
+            || ( isActive(pos)
+                && (!_isLtOrEq(id, pos) || (_rank[pos].prev != 0
                     && _isLtOrEq(id, _rank[pos].prev))))){
             //if user provided wrong pos or id is the best offer
             return _find(id);
         }else{
-            //pos is non zero and represents an inactive offer    
+            //pos is non zero and represents an inactive offer
             uint top = pos;
             uint old_top = 0;
-            
+
             while (top != 0 && !isActive(top)) {
                 old_top = top;
                 top = _rank[top].prev;
@@ -659,7 +660,7 @@ contract MatchingMarket is MatchingEvents, ExpiringMarket, DSNote {
 
         if (id != _best[pay_gem][buy_gem]) {
             // offers[id] is not the highest offer
-            require(_rank[_rank[id].next].prev == id); 
+            require(_rank[_rank[id].next].prev == id);
             _rank[_rank[id].next].prev = _rank[id].prev;
 
         } else {
