@@ -181,7 +181,7 @@ contract MatchingMarket is MatchingEvents, ExpiringMarket, DSNote {
     //deletes _rank [id]
     //  Function should be called by keepers.
     function del_rank(uint id)
-    returns(bool)
+    returns (bool)
     {
         require(!isActive(id) && _rank[id].delb != 0 && _rank[id].delb < block.number - 10);
         delete _rank[id];
@@ -299,14 +299,17 @@ contract MatchingMarket is MatchingEvents, ExpiringMarket, DSNote {
 
     //return the next worse offer in the sorted list
     //      the worse offer is the higher one if its an ask,
-    //      and lower one if its a bid offer
+<<<<<<< HEAD
+    //      lower one if its a bid offer,
+    //      and in both cases the newer one if they're equal.
     function getWorseOffer(uint id) public constant returns(uint) {
         return _rank[id].prev;
     }
 
     //return the next better offer in the sorted list
     //      the better offer is in the lower priced one if its an ask,
-    //      and next higher priced one if its a bid offer
+    //      the next higher priced one if its a bid offer
+    //      and in both cases the older one if they're equal.
     function getBetterOffer(uint id) public constant returns(uint) {
         return _rank[id].next;
     }
@@ -334,7 +337,9 @@ contract MatchingMarket is MatchingEvents, ExpiringMarket, DSNote {
     function isOfferSorted(uint id) public constant returns(bool) {
         address buy_gem = address(offers[id].buy_gem);
         address pay_gem = address(offers[id].pay_gem);
-        return (_rank[id].next != 0 || _rank[id].prev != 0 || _best[pay_gem][buy_gem] == id) ? true : false;
+        return _rank[id].delb == 0 &&
+               ( _rank[id].next != 0 || _rank[id].prev != 0 ||
+                 _best[pay_gem][buy_gem] == id);
     }
 
     function sellAllAmount(ERC20 pay_gem, uint pay_amt, ERC20 buy_gem, uint min_fill_amount)
@@ -640,6 +645,7 @@ contract MatchingMarket is MatchingEvents, ExpiringMarket, DSNote {
             _rank[id].prev = prev_id;
         }
 
+        _rank[id].delb = 0;
         _span[pay_gem][buy_gem]++;
         LogSortedOffer(id);
     }
@@ -655,8 +661,10 @@ contract MatchingMarket is MatchingEvents, ExpiringMarket, DSNote {
         address pay_gem = address(offers[id].pay_gem);
         require(_span[pay_gem][buy_gem] > 0);
 
-        //require id is in the sorted list
-        require(_rank[id].next != 0 || _rank[id].prev != 0 || _best[pay_gem][buy_gem] == id);
+        //assert id is in the sorted list
+        require(_rank[id].delb == 0 &&
+                 (_rank[id].next != 0 || _rank[id].prev != 0 ||
+                  _best[pay_gem][buy_gem] == id));
 
         if (id != _best[pay_gem][buy_gem]) {
             // offers[id] is not the highest offer
@@ -675,7 +683,7 @@ contract MatchingMarket is MatchingEvents, ExpiringMarket, DSNote {
         }
 
         _span[pay_gem][buy_gem]--;
-	_rank[id].delb = block.number;  //mark _rank[id] for deletion
+        _rank[id].delb = block.number;  //mark _rank[id] for deletion
         return true;
     }
 
