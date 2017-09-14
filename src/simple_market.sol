@@ -68,7 +68,6 @@ contract SimpleMarket is EventfulMarket, DSMath {
         uint     buy_amt;
         ERC20    buy_gem;
         address  owner;
-        bool     active;
         uint64   timestamp;
     }
 
@@ -241,7 +240,6 @@ contract SimpleMarket is EventfulMarket, DSMath {
         info.buy_amt = buy_amt;
         info.buy_gem = buy_gem;
         info.owner = msg.sender;
-        info.active = true;
         info.timestamp = uint64(now);
         id = _next_id();
         offers[id] = info;
