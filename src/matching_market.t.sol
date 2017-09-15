@@ -194,116 +194,206 @@ contract OrderMatchingGasTest is DSTest {
     offer matching.*/
     function execOrderInsertGasTest(uint offer_index, bool frontend_aid) public {
         createOffers(offer_index + 1);
-        if (frontend_aid) {
-            insertOffer(1, dai, 1, mkr, 1);
-        } else {
+        if (kind == 0) {                  // no frontend aid
             insertOffer(1, dai, 1, mkr);
-        }
-        assertEq(otc.getOfferCount(dai,mkr), offer_index + 2);
+            assertEq(otc.getOfferCount(dai,mkr), offer_index + 2);
+        } else if (kind == 1){            // with frontend aid
+            insertOffer(1, dai, 1, mkr, 1);
+            assertEq(otc.getOfferCount(dai,mkr), offer_index + 2);
+        } else if (kind == 2){            // with frontend aid outdated pos new offer is better 
+	    user1.doCancel(2);
+            insertOffer(2, dai, 1, mkr, 2);
+            assertEq(otc.getOfferCount(dai,mkr), offer_index + 1);
+	} else if (kind == 3){            // with frontend aid outdated pos new offer is worse
+	    user1.doCancel(3);
+            insertOffer(2, dai, 1, mkr, 2);
+            assertEq(otc.getOfferCount(dai,mkr), offer_index + 1);
+	}	
     }
     function testGasMatchOneOrder() public {
         var match_order_count = match_count[0]; // 1
         execOrderMatchingGasTest(match_order_count);
+// uncomment following line to run this test!
 //        assert(false);
     }
     function testGasMatchFiveOrders() public {
         var match_order_count = match_count[1]; // 5
         execOrderMatchingGasTest(match_order_count);
+// uncomment following line to run this test!
 //        assert(false);
     }
     function testGasMatchTenOrders() public {
         var match_order_count = match_count[2]; // 10
         execOrderMatchingGasTest(match_order_count);
+// uncomment following line to run this test!
 //        assert(false);
     }
     function testGasMatchFifteenOrders() public {
         var match_order_count = match_count[3]; // 15
         execOrderMatchingGasTest(match_order_count);
+// uncomment following line to run this test!
 //        assert(false);
     }
     function testGasMatchTwentyOrders() public {
         var match_order_count = match_count[4]; // 20
         execOrderMatchingGasTest(match_order_count);
+// uncomment following line to run this test!
 //        assert(false);
     }
     function testGasMatchTwentyfiveOrders() public {
         var match_order_count = match_count[5]; // 25
         execOrderMatchingGasTest(match_order_count);
+// uncomment following line to run this test!
 //        assert(false);
     }
     function testGasMatchThirtyOrders() public {
         var match_order_count = match_count[6]; // 30
         execOrderMatchingGasTest(match_order_count);
+// uncomment following line to run this test!
 //        assert(false);
     }
     function testGasMatchFiftyOrders() public {
         var match_order_count = match_count[7]; // 50
         execOrderMatchingGasTest(match_order_count);
+// uncomment following line to run this test!
 //        assert(false);
     }
     function testGasMatchHundredOrders() public {
         var match_order_count = match_count[8]; // 100
         execOrderMatchingGasTest(match_order_count);
+// uncomment following line to run this test!
 //        assert(false);
     }
     function testGasMakeOfferInsertAsFirstNoFrontendAid() public {
         uint offer_index = 1 - 1;
-        execOrderInsertGasTest(offer_index,false);
+        execOrderInsertGasTest(offer_index, 0);
+// uncomment following line to run this test!
 //        assert(false);
     }
     function testGasMakeOfferInsertAsFirstWithFrontendAid() public {
         uint offer_index = 1 - 1;
-        execOrderInsertGasTest(offer_index,true);
+        execOrderInsertGasTest(offer_index, 1);
+// uncomment following line to run this test!
 //        assert(false);
     }
     function testGasMakeOfferInsertAsTenthNoFrontendAid() public {
         uint offer_index = 10 - 1;
-        execOrderInsertGasTest(offer_index,false);
+        execOrderInsertGasTest(offer_index, 0);
+// uncomment following line to run this test!
 //        assert(false);
     }
     function testGasMakeOfferInsertAsTenthWithFrontendAid() public {
         uint offer_index = 10 - 1;
-        execOrderInsertGasTest(offer_index,true);
+        execOrderInsertGasTest(offer_index, 1);
+// uncomment following line to run this test!
+//        assert(false);
+    }
+    function testGasMakeOfferInsertAsTenthWithFrontendAidOldPos() {
+        uint offer_index = 10 - 1;
+        execOrderInsertGasTest(offer_index, 2);
+// uncomment following line to run this test!
+//        assert(false);
+    }
+    function testGasMakeOfferInsertAsTenthWithFrontendAidOldPosWorse() {
+        uint offer_index = 10 - 1;
+        execOrderInsertGasTest(offer_index, 3);
+// uncomment following line to run this test!
 //        assert(false);
     }
     function testGasMakeOfferInsertAsTwentiethNoFrontendAid() public {
         uint offer_index = 20 - 1;
-        execOrderInsertGasTest(offer_index,false);
+        execOrderInsertGasTest(offer_index, 0);
+// uncomment following line to run this test!
 //        assert(false);
     }
     function testGasMakeOfferInsertAsTwentiethWithFrontendAid() public {
         uint offer_index = 20 - 1;
-        execOrderInsertGasTest(offer_index,true);
+        execOrderInsertGasTest(offer_index, 1);
+// uncomment following line to run this test!
+//        assert(false);
+    }
+    function testGasMakeOfferInsertAsTwentiethWithFrontendAidOldPos() {
+        uint offer_index = 20 - 1;
+        execOrderInsertGasTest(offer_index, 2);
+// uncomment following line to run this test!
+//        assert(false);
+    }
+    function testGasMakeOfferInsertAsTwentiethWithFrontendAidOldPosWorse() {
+        uint offer_index = 20 - 1;
+        execOrderInsertGasTest(offer_index, 3);
+// uncomment following line to run this test!
 //        assert(false);
     }
     function testGasMakeOfferInsertAsFiftiethNoFrontendAid() public {
         uint offer_index = 50 - 1;
-        execOrderInsertGasTest(offer_index,false);
+        execOrderInsertGasTest(offer_index, 0);
+// uncomment following line to run this test!
 //        assert(false);
     }
     function testGasMakeOfferInsertAsFiftiethWithFrontendAid() public {
         uint offer_index = 50 - 1;
-        execOrderInsertGasTest(offer_index,true);
+        execOrderInsertGasTest(offer_index, 1);
+// uncomment following line to run this test!
+//        assert(false);
+    }
+    function testGasMakeOfferInsertAsFiftiethWithFrontendAidOldPos() {
+        uint offer_index = 50 - 1;
+        execOrderInsertGasTest(offer_index, 2);
+// uncomment following line to run this test!
+//        assert(false);
+    }
+    function testGasMakeOfferInsertAsFiftiethWithFrontendAidOldPosWorse() {
+        uint offer_index = 50 - 1;
+        execOrderInsertGasTest(offer_index, 3);
+// uncomment following line to run this test!
 //        assert(false);
     }
     function testGasMakeOfferInsertAsHundredthNoFrontendAid() public {
         uint offer_index = 100 - 1;
-        execOrderInsertGasTest(offer_index,false);
+        execOrderInsertGasTest(offer_index, 0);
+// uncomment following line to run this test!
 //        assert(false);
     }
     function testGasMakeOfferInsertAsHundredthWithFrontendAid() public {
         uint offer_index = 100 - 1;
-        execOrderInsertGasTest(offer_index,true);
+        execOrderInsertGasTest(offer_index, 1);
+// uncomment following line to run this test!
+//        assert(false);
+    }
+    function testGasMakeOfferInsertAsHundredthWithFrontendAidOldPos() {
+        uint offer_index = 100 - 1;
+        execOrderInsertGasTest(offer_index, 2);
+// uncomment following line to run this test!
+//        assert(false);
+    }
+    function testGasMakeOfferInsertAsHundredthWithFrontendAidOldPoWorses() {
+        uint offer_index = 100 - 1;
+        execOrderInsertGasTest(offer_index, 3);
+// uncomment following line to run this test!
 //        assert(false);
     }
     function testGasMakeOfferInsertAsTwohundredthNoFrontendAid() public {
         uint offer_index = 200 -1;
-        execOrderInsertGasTest(offer_index,false);
+        execOrderInsertGasTest(offer_index, 0);
+// uncomment following line to run this test!
 //        assert(false);
     }
     function testGasMakeOfferInsertAsTwohundredthWithFrontendAid() public {
         uint offer_index = 200 -1;
-        execOrderInsertGasTest(offer_index,true);
+        execOrderInsertGasTest(offer_index, 1);
+// uncomment following line to run this test!
+//        assert(false);
+    }
+    function testGasMakeOfferInsertAsTwohundredthWithFrontendAidOldPos() {
+        uint offer_index = 200 -1;
+        execOrderInsertGasTest(offer_index, 2);
+// uncomment following line to run this test!
+//        assert(false);
+    }
+    function testGasMakeOfferInsertAsTwohundredthWithFrontendAidOldPosWorse() {
+        uint offer_index = 200 -1;
+        execOrderInsertGasTest(offer_index, 3);
+// uncomment following line to run this test!
 //        assert(false);
     }
 }
