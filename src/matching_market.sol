@@ -335,11 +335,9 @@ contract MatchingMarket is MatchingEvents, ExpiringMarket, DSNote {
     }
 
     function isOfferSorted(uint id) public constant returns(bool) {
-        address buy_gem = address(offers[id].buy_gem);
-        address pay_gem = address(offers[id].pay_gem);
         return _rank[id].next != 0
                || _rank[id].prev != 0
-               || _best[pay_gem][buy_gem] == id;
+               || _best[offers[id].pay_gem][offers[id].buy_gem] == id;
     }
 
     function sellAllAmount(ERC20 pay_gem, uint pay_amt, ERC20 buy_gem, uint min_fill_amount)
@@ -609,12 +607,17 @@ contract MatchingMarket is MatchingEvents, ExpiringMarket, DSNote {
             pos = _find(id);
         } else {
             pos = _findpos(id, pos);
+
+            require(offers[pos].pay_gem == offers[id].pay_gem
+                 && offers[pos].buy_gem == offers[id].buy_gem);
         }
 
-        require(pos == 0 || isOfferSorted(pos));           //assert `pos` is in the sorted list or is 0
+        //requirement below is satisfied by statements above
+	//require(pos == 0 || isOfferSorted(pos));
 
         if (pos != 0) {                                    //offers[id] is not the highest offer
-            require(_isPricedLtOrEq(id, pos));
+            //requirement below is satisfied by statements above
+            //require(_isPricedLtOrEq(id, pos));
             prev_id = _rank[pos].prev;
             _rank[pos].prev = id;
             _rank[id].next = pos;
@@ -623,12 +626,9 @@ contract MatchingMarket is MatchingEvents, ExpiringMarket, DSNote {
             _best[pay_gem][buy_gem] = id;
         }
 
-        require(prev_id == 0
-                || offers[prev_id].pay_gem == offers[id].pay_gem
-                || offers[prev_id].buy_gem == offers[id].buy_gem);
-
         if (prev_id != 0) {                               //if lower offer does exist
-            require(!_isPricedLtOrEq(id, prev_id));
+            //requirement below is satisfied by statements above
+            //require(!_isPricedLtOrEq(id, prev_id));
             _rank[prev_id].next = id;
             _rank[id].prev = prev_id;
         }
